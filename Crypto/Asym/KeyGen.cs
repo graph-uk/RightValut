@@ -1,10 +1,10 @@
-﻿using Org.BouncyCastle.Crypto;
+﻿using Crypto.Utils;
+using Org.BouncyCastle.Crypto;
 using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Math.EC;
 using Org.BouncyCastle.Utilities.Encoders;
-using Random = Crypto.Utils.Random;
 
 namespace Crypto.Asym
 {
