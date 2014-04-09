@@ -95,6 +95,11 @@ namespace DoneRightPass
                     randomIvForGroupPrivate, false));
 
             //Encrypt group private for bob
+            serializedGroupPrivate = EcKeySerializer.SerializeEcPrivateKey(decryptedGroupPrivateKeyAlice);
+            randomKeyForGroupPrivate = rnd.GenerateSeed(32); //256 random bits
+            randomIvForGroupPrivate = rnd.GenerateSeed(16); //128 random bits
+            encryptedGroupPrivateKey = AES.Process(serializedGroupPrivate, randomKeyForGroupPrivate, randomIvForGroupPrivate, true);
+
             tempPair = KeyGen.GenerateKeyPair();
             commonSecret = ECDH.CalculateCommonSecret(tempPair.Private, bob.Public);
             randomIvForKey = rnd.GenerateSeed(16); //128 random bits for key encryption
