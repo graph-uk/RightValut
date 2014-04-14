@@ -1,4 +1,6 @@
 ﻿using Crypto.Asym;
+using Crypto.Hash;
+using Crypto.Model;
 using Crypto.Sym;
 using Org.BouncyCastle.Crypto.Parameters;
 
@@ -6,7 +8,7 @@ namespace Crypto.Utils
 {
     public class Utils
     {
-        public static void EncryptDataForPublicKey(ECPublicKeyParameters recieversPublicKey, byte[] data)
+        public static EncryptedDataContainer EncryptDataForPublicKey(ECPublicKeyParameters recieversPublicKey, byte[] data)
         {
             var rnd = Random.GetSecureRandom();
 
@@ -20,7 +22,15 @@ namespace Crypto.Utils
             var randomIvForKey = rnd.GenerateSeed(16); //128 random bits for key encryption
             var encryptedDataKey = AES.Process(randomKey, commonSecret, randomIvForKey, true);
 
-            //output: encryptedData, encryptedDataKey, tempPair.Public
+            return new EncryptedDataContainer()
+            {
+                DataIv = randomIv,
+                EncryptedData = encryptedData,
+                EncryptedDataKey = encryptedDataKey,
+                KeyIv = randomIvForKey,
+                TempPublicKey = EcKeySerializer.SerializeEcPublicKey(tempPair.Public),
+                OwnerHash = SHA3_512.Process(EcKeySerializer.SerializeEcPublicKey(recieversPublicKey))
+            };
         }
     }
 }
