@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Hash\SHA3_512.cs" />
     <Compile Include="Model\EncryptedDataContainer.cs" />
+    <Compile Include="Model\DataKeyContainer.cs" />
     <Compile Include="Sym\AES.cs" />
     <Compile Include="Asym\ECDH.cs" />
     <Compile Include="Asym\ECKeySerializer.cs" />
