@@ -36,7 +36,7 @@ namespace Crypto.Utils
                 throw new ArgumentException("Key size must be 256 bits");
             }
 
-            var tempPair = KeyGen.GenerateKeyPair();
+            var tempPair = KeyGen.GenerateKeyPair(random);
             var commonSecret = ECDH.CalculateCommonSecret(tempPair.Private, recieversPublicKey);
             var randomIvForKey = random.GenerateSeed(Consts.SMALL_SALT_SIZE); //128 random bits for key encryption
             var encryptedDataKey = AES.Process(key, commonSecret, randomIvForKey, true);

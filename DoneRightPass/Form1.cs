@@ -19,16 +19,16 @@ namespace DoneRightPass
         private void Form1_Load(object sender, EventArgs e)
         {
 
-
-            var alice = KeyGen.GenerateKeyPair();
+            var rnd = Random.GetSecureRandom();
+            var alice = KeyGen.GenerateKeyPair(rnd);
             const string monkeysAndABanana = "40 000 monkeys and a banana";
             var password = Encoding.UTF8.GetBytes(monkeysAndABanana);
-            var rnd = Random.GetSecureRandom();
+            
 
             var randomKey = rnd.GenerateSeed(32); //256 random bits
             var randomIv = rnd.GenerateSeed(16); //128 random bits
             var encryptedPassword = AES.Process(password, randomKey, randomIv, true);
-            var tempPair = KeyGen.GenerateKeyPair();
+            var tempPair = KeyGen.GenerateKeyPair(rnd);
             var commonSecret = ECDH.CalculateCommonSecret(tempPair.Private, alice.Public); // needed to encrypt random key
 
             var randomIvForKey = rnd.GenerateSeed(16); //128 random bits for key encryption
@@ -53,14 +53,16 @@ namespace DoneRightPass
 
         private void TestSharing()
         {
-            var alice = KeyGen.GenerateKeyPair(); // Alice creates new group
-            var groupPair = KeyGen.GenerateKeyPair(); // group key
-            var bob = KeyGen.GenerateKeyPair(); // Bob does not know group's private key
+            var rnd = Random.GetSecureRandom();
+
+            var alice = KeyGen.GenerateKeyPair(rnd); // Alice creates new group
+            var groupPair = KeyGen.GenerateKeyPair(rnd); // group key
+            var bob = KeyGen.GenerateKeyPair(rnd); // Bob does not know group's private key
             
             // create new password and encrypt it with a random key
             const string monkeysAndABanana = "40 000 monkeys and a banana";
             var password = Encoding.UTF8.GetBytes(monkeysAndABanana);
-            var rnd = Random.GetSecureRandom();
+            
             var passwordKey = rnd.GenerateSeed(32); //256 random bits
             var encryptedPassword = Utils.EncryptData(password, passwordKey, rnd);
 

@@ -4,6 +4,7 @@ using Org.BouncyCastle.Crypto.Generators;
 using Org.BouncyCastle.Crypto.Parameters;
 using Org.BouncyCastle.Math;
 using Org.BouncyCastle.Math.EC;
+using Org.BouncyCastle.Security;
 using Org.BouncyCastle.Utilities.Encoders;
 
 namespace Crypto.Asym
@@ -31,10 +32,14 @@ namespace Crypto.Asym
 
         public static readonly ECDomainParameters DomParams = new ECDomainParameters(Curve, G, n, h);
 
-        public static AsymmetricCipherKeyPair GenerateKeyPair()
+        public static AsymmetricCipherKeyPair GenerateKeyPair(SecureRandom random)
         {
+            if (random == null)
+            {
+                random = Random.GetSecureRandom();
+            }
             var gen = new ECKeyPairGenerator();
-            var param = new ECKeyGenerationParameters(DomParams, Random.GetSecureRandom());
+            var param = new ECKeyGenerationParameters(DomParams, random);
             gen.Init(param);
             return gen.GenerateKeyPair();
         }
