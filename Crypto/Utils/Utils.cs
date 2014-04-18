@@ -50,9 +50,23 @@ namespace Crypto.Utils
             };
         }
 
-        public static byte[] DecryptDataKeyWithPrivateKey(AsymmetricKeyParameter privateKey, DataKeyContainer encryptedKey)
+        public static byte[] DecryptDataKeyWithPrivateKey(AsymmetricKeyParameter privateKey, DataKeyContainer encryptedKey, bool b)
         {
-            var commonSecret = ECDH.CalculateCommonSecret(privateKey, EcKeySerializer.DeserializeEcPublicKey(encryptedKey.TempPublicKey));
+            if(b)
+            Console.WriteLine(BitConverter.ToString(encryptedKey.TempPublicKey));
+
+            ECPublicKeyParameters key = null;
+            try
+            {
+                key = EcKeySerializer.DeserializeEcPublicKey(encryptedKey.TempPublicKey);
+            }
+            catch (Exception)
+            {
+                
+                throw;
+            }
+            
+            var commonSecret = ECDH.CalculateCommonSecret(privateKey, key);
             var decryptedKey = AES.Process(encryptedKey.EncryptedDataKey, commonSecret, encryptedKey.KeyIv, false);
             return decryptedKey;
         }
