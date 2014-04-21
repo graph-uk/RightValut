@@ -23,7 +23,7 @@ namespace Crypto.Asym
                 k2 = x.K2,
                 k3 = x.K3,
                 m = x.M,
-                value = x.ToBigInteger().ToByteArrayUnsigned()
+                value = x.ToBigInteger().ToByteArray()
             };
 
             var Y = new ECPointCoordinate()
@@ -32,7 +32,7 @@ namespace Crypto.Asym
                 k2 = y.K2,
                 k3 = y.K3,
                 m = y.M,
-                value = y.ToBigInteger().ToByteArrayUnsigned()
+                value = y.ToBigInteger().ToByteArray()
             };
 
             var stream = new MemoryStream();
@@ -60,7 +60,7 @@ namespace Crypto.Asym
         {
             var ecParameters = (ECPrivateKeyParameters) parameters;
             var stream = new MemoryStream();
-            Serializer.Serialize(stream,new ECPrivateKey() {D = ecParameters.D.ToByteArrayUnsigned()});
+            Serializer.Serialize(stream,new ECPrivateKey() {D = ecParameters.D.ToByteArray()});
             return stream.ToArray();
         }
 
