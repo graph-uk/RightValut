@@ -50,11 +50,8 @@ namespace Crypto.Utils
             };
         }
 
-        public static byte[] DecryptDataKeyWithPrivateKey(AsymmetricKeyParameter privateKey, DataKeyContainer encryptedKey, bool b)
+        public static byte[] DecryptDataKeyWithPrivateKey(AsymmetricKeyParameter privateKey, DataKeyContainer encryptedKey)
         {
-            if(b)
-            Console.WriteLine(BitConverter.ToString(encryptedKey.TempPublicKey));
-
             ECPublicKeyParameters key = null;
             try
             {

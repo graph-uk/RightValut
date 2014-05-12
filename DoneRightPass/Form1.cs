@@ -81,10 +81,46 @@ namespace DoneRightPass
             {
                 try
                 {
-                    var k = KeyGen.GenerateKeyPair(rnd);
-                    var szed = EcKeySerializer.SerializeEcPublicKey(k.Public);
-                    var deszed = EcKeySerializer.DeserializeEcPublicKey(szed);
-                    Console.WriteLine(deszed.AlgorithmName);
+                    var alice = KeyGen.GenerateKeyPair(rnd); // Alice creates new group
+                    var groupPair = KeyGen.GenerateKeyPair(rnd); // group key
+                    var bob = KeyGen.GenerateKeyPair(rnd); // Bob does not know group's private key
+                    // create new password and encrypt it with a random key
+                    const string monkeysAndABanana = "40 000 monkeys and a banana";
+                    var password = Encoding.UTF8.GetBytes(monkeysAndABanana);
+
+                    var passwordKey = rnd.GenerateSeed(32); //256 random bits
+                    var encryptedPassword = Utils.EncryptData(password, passwordKey, rnd);
+
+                    //Alice encrypts password's key with group key
+
+                    var keyEncryptedForGroup = Utils.EncryptDataKeyForPublicKey(groupPair.Public, passwordKey, rnd);
+
+                    //Test 2. Sharing a password for a group
+
+                    var serializedGroupPrivate = EcKeySerializer.SerializeEcPrivateKey(groupPair.Private);
+                    var randomKeyForGroupPrivate = rnd.GenerateSeed(32); //256 random bits
+                    var encryptedGroupPrivateKey = Utils.EncryptData(serializedGroupPrivate, randomKeyForGroupPrivate, rnd);
+
+                    //2. Encrypt random key for group private key for myself
+                    var encryptedGroupRandomKey = Utils.EncryptDataKeyForPublicKey(alice.Public, randomKeyForGroupPrivate, rnd);
+
+                    //3. Decrypt group private
+                    var decryptedGroupRandomKey = Utils.DecryptDataKeyWithPrivateKey(alice.Private, encryptedGroupRandomKey);
+                    var decryptedGroupPrivateKeyAlice = EcKeySerializer.DeserealizeEcPrivateKey(Utils.DecryptData(encryptedGroupPrivateKey, decryptedGroupRandomKey));
+
+                    //Encrypt group private for bob
+                    serializedGroupPrivate = EcKeySerializer.SerializeEcPrivateKey(decryptedGroupPrivateKeyAlice);
+                    randomKeyForGroupPrivate = rnd.GenerateSeed(32); //256 random bits
+                    encryptedGroupPrivateKey = Utils.EncryptData(serializedGroupPrivate, randomKeyForGroupPrivate, rnd);
+                    encryptedGroupRandomKey = Utils.EncryptDataKeyForPublicKey(bob.Public, randomKeyForGroupPrivate, rnd); // by decrypting this key, bob will be available to decrypt the group's private with it
+
+                    // bob decrypts group private
+                    decryptedGroupRandomKey = Utils.DecryptDataKeyWithPrivateKey(bob.Private, encryptedGroupRandomKey);
+                    var decryptedGroupPrivateKeyBob = EcKeySerializer.DeserealizeEcPrivateKey(Utils.DecryptData(encryptedGroupPrivateKey, decryptedGroupRandomKey));
+
+                    var decryptedKeyForPassword = Utils.DecryptDataKeyWithPrivateKey(decryptedGroupPrivateKeyBob, keyEncryptedForGroup);
+                    var decryptedPassword = Encoding.UTF8.GetString(Utils.DecryptData(encryptedPassword, decryptedKeyForPassword));
+                    Console.WriteLine(decryptedPassword);
 
                 }
                 catch (Exception e)
@@ -92,54 +128,6 @@ namespace DoneRightPass
                     Console.WriteLine(e);
                 }
             }
-
-
-
-
-            var alice = KeyGen.GenerateKeyPair(rnd); // Alice creates new group
-            var groupPair = KeyGen.GenerateKeyPair(rnd); // group key
-            var bob = KeyGen.GenerateKeyPair(rnd); // Bob does not know group's private key
-            // create new password and encrypt it with a random key
-            const string monkeysAndABanana = "40 000 monkeys and a banana";
-            var password = Encoding.UTF8.GetBytes(monkeysAndABanana);
-
-            var passwordKey = rnd.GenerateSeed(32); //256 random bits
-            var encryptedPassword = Utils.EncryptData(password, passwordKey, rnd);
-
-            //Alice encrypts password's key with group key
-
-            var keyEncryptedForGroup = Utils.EncryptDataKeyForPublicKey(groupPair.Public, passwordKey, rnd);
-
-            //Test 2. Sharing a password for a group
-
-            var serializedGroupPrivate = EcKeySerializer.SerializeEcPrivateKey(groupPair.Private);
-            var randomKeyForGroupPrivate = rnd.GenerateSeed(32); //256 random bits
-            var encryptedGroupPrivateKey = Utils.EncryptData(serializedGroupPrivate, randomKeyForGroupPrivate, rnd);
-
-            //2. Encrypt random key for group private key for myself
-            var encryptedGroupRandomKey = Utils.EncryptDataKeyForPublicKey(alice.Public, randomKeyForGroupPrivate, rnd);
-
-            //3. Decrypt group private
-            var decryptedGroupRandomKey = Utils.DecryptDataKeyWithPrivateKey(alice.Private, encryptedGroupRandomKey, false);
-            var decryptedGroupPrivateKeyAlice = EcKeySerializer.DeserealizeEcPrivateKey(Utils.DecryptData(encryptedGroupPrivateKey, decryptedGroupRandomKey));
-
-            //Encrypt group private for bob
-            serializedGroupPrivate = EcKeySerializer.SerializeEcPrivateKey(decryptedGroupPrivateKeyAlice);
-            randomKeyForGroupPrivate = rnd.GenerateSeed(32); //256 random bits
-            encryptedGroupPrivateKey = Utils.EncryptData(serializedGroupPrivate, randomKeyForGroupPrivate, rnd);
-            encryptedGroupRandomKey = Utils.EncryptDataKeyForPublicKey(bob.Public, randomKeyForGroupPrivate, rnd); // by decrypting this key, bob will be available to decrypt the group's private with it
-
-            Console.WriteLine(BitConverter.ToString(encryptedGroupRandomKey.TempPublicKey));
-
-            // bob decrypts group private
-            decryptedGroupRandomKey = Utils.DecryptDataKeyWithPrivateKey(bob.Private, encryptedGroupRandomKey, true);
-            var decryptedGroupPrivateKeyBob = EcKeySerializer.DeserealizeEcPrivateKey(Utils.DecryptData(encryptedGroupPrivateKey, decryptedGroupRandomKey));
-
-            var decryptedKeyForPassword = Utils.DecryptDataKeyWithPrivateKey(decryptedGroupPrivateKeyBob, keyEncryptedForGroup, false);
-            var decryptedPassword = Encoding.UTF8.GetString(Utils.DecryptData(encryptedPassword, decryptedKeyForPassword));
-            Console.WriteLine(decryptedPassword);
-
-            
         }
     }
 }
