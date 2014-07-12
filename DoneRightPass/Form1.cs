@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Data.SqlServerCe;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Crypto.Asym;
@@ -9,6 +12,12 @@ using Random = Crypto.Utils.Random;
 
 namespace DoneRightPass
 {
+	class Package
+	{
+		public string Company { get; set; }
+		public double Weight { get; set; }
+		public long TrackingNumber { get; set; }
+	}
     public partial class Form1 : Form
     {
         public Form1()
@@ -18,6 +27,17 @@ namespace DoneRightPass
 
         private void Form1_Load(object sender, EventArgs e)
         {
+			List<Package> packages =
+						new List<Package>
+                        { new Package { Company = "Coho Vineyard", Weight = 25.2, TrackingNumber = 89453312L },
+                          new Package { Company = "Lucerne Publishing", Weight = 18.7, TrackingNumber = 89112755L },
+                          new Package { Company = "Wingtip Toys", Weight = 6.0, TrackingNumber = 299456122L },
+                          new Package { Company = "Adventure Works", Weight = 33.8, TrackingNumber = 4665518773L } };
+
+			// Create a Dictionary of Package objects, 
+			// using TrackingNumber as the key.
+			Dictionary<long, Package> dictionary =
+				packages.ToDictionary(p => p.TrackingNumber);
 
             var rnd = Random.GetSecureRandom();
             var alice = KeyGen.GenerateKeyPair(rnd);
