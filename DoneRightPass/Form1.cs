@@ -12,12 +12,6 @@ using Random = Crypto.Utils.Random;
 
 namespace DoneRightPass
 {
-	class Package
-	{
-		public string Company { get; set; }
-		public double Weight { get; set; }
-		public long TrackingNumber { get; set; }
-	}
     public partial class Form1 : Form
     {
         public Form1()
@@ -130,4 +124,10 @@ namespace DoneRightPass
             }
         }
     }
+	class Package
+	{
+		public string Company { get; set; }
+		public double Weight { get; set; }
+		public long TrackingNumber { get; set; }
+	}
 }
