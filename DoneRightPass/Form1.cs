@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using Crypto.Asym;
 using Crypto.Sym;
 using Crypto.Utils;
+using DoneRightPass.Model;
 using Org.BouncyCastle.Crypto.Parameters;
 using Random = Crypto.Utils.Random;
 
@@ -32,6 +33,7 @@ namespace DoneRightPass
 			// using TrackingNumber as the key.
 			Dictionary<long, Package> dictionary =
 				packages.ToDictionary(p => p.TrackingNumber);
+
 
             var rnd = Random.GetSecureRandom();
             var alice = KeyGen.GenerateKeyPair(rnd);
